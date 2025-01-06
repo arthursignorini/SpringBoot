@@ -3,7 +3,6 @@ package com.arthursig.springboot.models;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import org.springframework.scheduling.config.Task;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -13,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,7 +20,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity // define como uma entidade do banco
-@Table(name = "user") // define o nome da tabela
+@Table(name = "\"user\"") // define o nome da tabela
 public class User {
 
     public interface CreateUser {
@@ -48,6 +48,12 @@ public class User {
     @Size(groups = { CreateUser.class, Updateuser.class }, min = 8, max = 60)
     private String password;
 
+    @OneToMany (mappedBy = "user")// um usuário pode ter várias tasks
+    // quem está mapeando de quem são essas tasks - variável user
+    private ArrayList<Task> tasks = new ArrayList<>();
+
+
+    // MÉTODOS
     public User() {
 
     }
@@ -55,15 +61,12 @@ public class User {
     public User(Long id,
             @NotNull(groups = CreateUser.class) @NotEmpty(groups = CreateUser.class) @Size(groups = CreateUser.class, min = 2, max = 100) String username,
             @NotBlank(groups = { CreateUser.class, Updateuser.class }) @Size(groups = { CreateUser.class,
-                    Updateuser.class }, min = 8, max = 60) String password) {
+                    Updateuser.class }, min = 8, max = 60) String password,
+            ArrayList<Task> tasks) {
         this.id = id;
         this.username = username;
         this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "User [id=" + id + ", username=" + username + ", password=" + password + "]";
+        this.tasks = tasks;
     }
 
     public Long getId() {
@@ -90,11 +93,22 @@ public class User {
         this.password = password;
     }
 
+    public ArrayList<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, username);
     }
 
-    // private ArrayList<Task> tasks = new ArrayList<>();
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", username=" + username + ", password=" + password + ", tasks=" + tasks + "]";
+    }
 
 }
